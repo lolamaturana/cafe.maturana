@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Café Aromático Maturana</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6f4f0;
+      color: #333;
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      text-align: center; /* Center content on the main page */
+    }
+    h1 {
+      text-align: center;
+      color: #6b4226;
+    }
+    /* Estilos generales para las etiquetas de los campos principales */
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: left; /* Align labels left within forms */
+    }
+    /* Estilos para los títulos de grupo (p tags) de checkboxes/radios */
+    p {
+      margin-top: 20px; /* Espacio superior para el título del grupo */
+      font-weight: bold; /* Hacer el título del grupo negrita */
+      text-align: left; /* Align paragraphs left within forms */
+    }
+
+    /* Contenedor para cada par input + label para mejor control del espaciado */
+    .option-group div {
+        margin-bottom: 8px; /* Espacio entre cada opción (checkbox/radio + label) */
+    }
+
+    /* Estilos para alinear input y label en la misma línea y juntos */
+    .option-group input[type="checkbox"],
+    .option-group input[type="radio"] {
+        width: auto; /* Ancho automático para no ocupar todo el ancho */
+        margin-right: 8px; /* Espacio entre el input y su etiqueta */
+        vertical-align: middle; /* Alinea el input con el texto de la etiqueta */
+        padding: 0; /* Asegurarse de que no tengan padding extra */
+    }
+    .option-group label {
+        display: inline-block; /* Para que la etiqueta esté en la misma línea que el input */
+        margin-top: 0; /* Eliminar el margin-top de la regla general de label */
+        font-weight: normal; /* Asegurar que no sea negrita por defecto si no queremos */
+        vertical-align: middle; /* Alinea el texto con el input */
+    }
+
+    /* Estilos para los inputs generales, select y button */
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box; /* Ensures padding doesn't increase total width */
+    }
+    input[type="range"] {
+        padding: 0; /* Range input doesn't need padding */
+    }
+    button {
+      background-color: #6b4226;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 20px; /* Give some space above the button */
+    }
+    button:hover {
+      background-color: #5a3721;
+    }
+
+    /* Estilo para el contenedor del slider y el valor */
+    .range-container {
+        display: flex; /* Para que el slider y el valor estén en la misma línea */
+        align-items: center; /* Centrar verticalmente */
+        margin-top: 6px; /* Similar al margin-top de otros inputs */
+    }
+    .range-container input[type="range"] {
+        flex-grow: 1; /* Permite que el slider ocupe el espacio disponible */
+        margin-top: 0; /* Eliminar el margin-top extra */
+    }
+    .range-value {
+        margin-left: 10px; /* Espacio entre el slider y el valor */
+        font-weight: bold;
+        color: #6b4226;
+        min-width: 40px; /* Asegura un ancho mínimo para que no salte el texto */
+        text-align: right; /* Alinea el porcentaje a la derecha */
+    }
+
+    /* --- Estilos para la sección de búsqueda de país --- */
+    .country-section {
+        /* No necesitamos el margin-top ni border-top si está integrado en la forma principal */
+        /* margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #eee; */
+    }
+
+    .country-section h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .input-container {
+      position: relative;
+      display: inline-block;
+      width: 100%; /* Para que el input ocupe el ancho completo del contenedor principal */
+      margin-top: 6px;
+    }
+
+    .input-container input {
+      font-size: 16px;
+      width: calc(100% - 22px); /* Ancho completo menos el padding y el ancho del checkmark */
+      padding: 8px;
+      box-sizing: border-box;
+      display: block; /* Para que ocupe toda la línea */
+      border: 1px solid #ccc; /* Borde por defecto */
+      transition: border-color 0.3s ease; /* Transición suave para el cambio de borde */
+    }
+
+    /* Estilo para el borde verde cuando el país es válido */
+    .input-container input.valid-country {
+        border-color: green;
+    }
+
+    .checkmark {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      color: green;
+      display: none;
+    }
+
+    /* --- Form sections style (for Reserva tu cita) --- */
+    .form-section {
+        display: none; /* Hidden by default */
+        text-align: left; /* Align content left within forms */
+    }
+
+    /* Styles for modal popups */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 10; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto; /* 10% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; /* Could be more responsive */
+      max-width: 400px; /* Max width for consistency */
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      position: relative; /* Needed for close button positioning */
+      text-align: left;
+    }
+
+    /* Shared styles for form buttons to ensure consistent look */
+    .form-section button[type="submit"],
+    .modal-content button[type="submit"] {
+      margin-top: 15px; /* Adjust spacing */
+      background-color: #6b4226; /* Match existing button style */
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .form-section button[type="submit"]:hover,
+    .modal-content button[type="submit"]:hover {
+      background-color: #5a3721; /* Match existing button hover style */
+    }
+
+    /* Adjust modal-like fields for direct form display */
+    .form-section input[type="text"],
+    .form-section input[type="email"],
+    .form-section input[list],
+    .modal-content input[type="text"],
+    .modal-content input[type="email"],
+    .modal-content input[list] {
+        width: 100%;
+        padding: 8px;
+        margin: 8px 0;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
+
+    /* Styles for radio buttons in suggestion/employee forms */
+    .form-section .radio-group label,
+    .modal-content .radio-group label {
+      display: inline-block;
+      margin-right: 15px;
+      font-weight: normal;
+      margin-top: 0;
+    }
+    .form-section .radio-group input[type="radio"],
+    .modal-content .radio-group input[type="radio"] {
+      width: auto;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    /* Main landing page buttons */
+    #main-buttons button {
+        margin-bottom: 10px; /* Space between the main buttons */
+        width: calc(100% - 40px); /* Adjust width for padding */
+        max-width: 300px; /* Limit max width for larger screens */
+    }
+
+    .close-btn {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close-btn:hover,
+    .close-btn:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Sponsor section styling */
+    .sponsor-section {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+
+    .sponsor-section p {
+      font-size: 1.1em;
+      color: #6b4226;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .sponsor-section img {
+      max-width: 150px; /* Adjust as needed */
+      height: auto;
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1 id="main-title">Café Aromático Maturana</h1>
+
+  <div id="main-buttons">
+    <button id="showReservaBtn">Reserva tu cita</button>
+    <button id="openSugerenciasModalBtn">Buzón de Sugerencias/Quejas</button>
+    <button id="openEmpleadoModalBtn">Soy Empleado</button>
+  </div>
+
+  <div id="sponsorSection" class="sponsor-section">
+    <p>Patrocinado por:</p>
+    <img src="image_cf9442.png" alt="BBVA AI Factory Logo">
+  </div>
+
+  <div id="reservaFormSection" class="form-section">
+    <h2>Reserva tu cita</h2>
+    <form id="reservaForm">
+      <label for="email">Tu correo electrónico</label>
+      <input type="email" id="email" name="email" required />
+
+      <label for="fecha">Selecciona una fecha</label>
+      <input type="date" id="fecha" name="fecha" required onkeydown="return false;" />
+
+      <label for="hora">Selecciona una hora</label>
+      <select id="hora" name="hora" required>
+      </select>
+      
+      <label for="country">País:</label>
+      <div class="input-container">
+        <input list="countries" id="country" name="country" placeholder="Escribe un país..." autocomplete="off" />
+        <span id="check" class="checkmark">✓</span>
+      </div>
+      <datalist id="countries">
+        <option value="Afganistán (سلام - Salam)">
+        <option value="Albania (Përshëndetje)">
+        <option value="Alemania (Hallo)">
+        <option value="Andorra (Hola)">
+        <option value="Angola (Olá)">
+        <option value="Argentina (Hola)">
+        <option value="Armenia (Բարև - Barev)">
+        <option value="Australia (Hello)">
+        <option value="Austria (Hallo)">
+        <option value="Bélgica (Hallo / Bonjour)">
+        <option value="Brasil (Olá)">
+        <option value="Canadá (Hello / Bonjour)">
+        <option value="Chile (Hola)">
+        <option value="China (你好 - Nǐ hǎo)">
+        <option value="Colombia (Hola)">
+        <option value="Corea del Sur (안녕하세요 - Annyeonghaseyo)">
+        <option value="Cuba (Hola)">
+        <option value="Ecuador (Hola)">
+        <option value="Egipto (أهلاً - Ahlan)">
+        <option value="España (Hola)">
+        <option value="Estados Unidos (Hello)">
+        <option value="Francia (Bonjour)">
+        <option value="Reino Unido (Hello)">
+        <option value="Italia (Ciao)">
+        <option value="Japón (こんにちは - Konnichiwa)">
+        <option value="México (Hola)">
+        <option value="Perú (Hola)">
+        <option value="Portugal (Olá)">
+        <option value="Rusia (Здравствуйте - Zdravstvuyte)">
+        <option value="Sudáfrica (Hello / Sawubona)">
+      </datalist>
+      
+
+      <label for="range_input">Intensidad (0-100):</label>
+      <div class="range-container">
+          <input type="range" id="range_input" name="roast_intensity" min="0" max="100" value="75">
+          <span id="range_value_display" class="range-value">75%</span>
+      </div>
+      <br>
+
+      <p>Cómo te gustaría el grano de café:</p>
+      <div class="option-group">
+          <div>
+              <input type="checkbox" id="roast_full" name="roast_preference" value="full_roast">
+              <label for="roast_full">Tostadura completa</label>
+          </div>
+          <div>
+              <input type="checkbox" id="roast_double" name="roast_preference" value="double_roast">
+              <label for="roast_double">Doble tostadura</label>
+          </div>
+          <div>
+              <input type="checkbox" id="roast_unroasted" name="roast_preference" value="unroasted">
+              <label for="roast_unroasted">Sin tostar</label>
+          </div>
+      </div>
+      <br>
+
+      <p>Selecciona el tipo de café:</p>
+      <div class="option-group">
+          <div>
+              <input type="radio" id="coffee_cappuccino" name="coffee_type" value="cappuccino">
+              <label for="coffee_cappuccino">Cappuccino</label>
+          </div>
+          <div>
+              <input type="radio" id="coffee_milk" name="coffee_milk" value="con_leche">
+              <label for="coffee_milk">Con leche</label>
+          </div>
+          <div>
+              <input type="radio" id="coffee_solo" name="coffee_type" value="solo">
+              <label for="coffee_solo">Solo</label>
+          </div>
+      </div>
+      <br>
+
+      <label for="dropdown_select">Selecciona el recipiente:</label>
+      <select id="dropdown_select" name="container_select">
+        <option value="vaso">Vaso</option>
+        <option value="taza">Taza</option>
+        <option value="takeaway">Take Away</option>
+      </select>
+      <br><br>
+     
+      <label for="file_upload">Sube tu DNI (un archivo):</label>
+      <input type="file" id="file_upload" name="dni_file">
+      <br><br>
+
+      <button type="submit">Elegir cita</button>
+      <button type="button" class="back-to-main-btn" style="background-color: #555; margin-top: 10px;">Volver</button>
+    </form>
+  </div>
+
+  <div id="sugerenciasModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeSugerenciasModalBtn">&times;</span>
+      <h2>Buzón de Sugerencias/Quejas</h2>
+      <form id="suggestionForm">
+        <label for="modal-email">Correo:</label>
+        <input type="email" id="modal-email" name="email" required>
+
+        <label for="summary">Resumen:</label>
+        <input type="text" id="summary" name="summary" required>
+
+        <label>Tipo:</label>
+        <div class="radio-group">
+          <label><input type="radio" name="type" value="queja" required> Queja</label>
+          <label><input type="radio" name="type" value="sugerencia" required> Sugerencia</label>
+        </div>
+        
+
+        <label for="body">Cuerpo:</label>
+        <input type="text" id="body" name="body" required>
+
+        <button type="submit">Enviar</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="empleadoModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeEmpleadoModalBtn">&times;</span>
+      <h2>Soy Empleado</h2>
+      <form id="employeeForm">
+        <label for="employee-mail">Mail Corporativo:</label>
+        <input type="email" id="employee-mail" name="mail_corporativo" required>
+
+        <label for="dni">DNI:</label>
+        <input type="text" id="dni" name="dni" required>
+
+        <label for="puesto">Puesto:</label>
+        <input list="puestos" id="puesto" name="puesto" required>
+        <datalist id="puestos">
+          <option value="Cajero">
+          <option value="Barista">
+          <option value="Gerente de tienda">
+          <option value="Supervisor">
+          <option value="Reponedor">
+          <option value="Logística">
+          <option value="Marketing local">
+          <option value="Atención al cliente">
+          <option value="Limpieza">
+          <option value="Recursos humanos">
+        </datalist>
+
+        <label for="codigo_local">Código Local:</label>
+        <input list="locales" id="codigo_local" name="codigo_local" required>
+        <datalist id="locales">
+          <option value="madrid_goya">
+          <option value="madrid_granvia">
+          <option value="madrid_sol">
+          <option value="barcelona_diagonal">
+          <option value="barcelona_rambla">
+          <option value="valencia_colon">
+          <option value="valencia_russafa">
+          <option value="sevilla_nervion">
+          <option value="sevilla_triana">
+          <option value="malaga_larios">
+          <option value="malaga_elpalo">
+          <option value="bilbao_indautxu">
+          <option value="bilbao_abando">
+          <option value="zaragoza_coso">
+          <option value="zaragoza_delicias">
+          <option value="santander_centro">
+          <option value="oviedo_campoamor">
+          <option value="vigo_principe">
+          <option value="vigo_castrelos">
+          <option value="alicante_explanada">
+          <option value="alicante_sanblas">
+          <option value="granada_realejo">
+          <option value="granada_albaicin">
+          <option value="cordoba_judería">
+          <option value="cordoba_centro">
+          <option value="murcia_sananton">
+          <option value="murcia_infante">
+          <option value="valladolid_centroviejo">
+          <option value="valladolid_zorrilla">
+          <option value="logroño_laural">
+        </datalist>
+
+        <button type="submit">Enviar</button>
+      </form>
+    </div>
+  </div>
+
+
+  <script>
+    // --- Main Page Elements ---
+    const mainTitle = document.getElementById('main-title');
+    const mainButtonsDiv = document.getElementById('main-buttons');
+    const reservaFormSection = document.getElementById('reservaFormSection');
+    const sponsorSection = document.getElementById('sponsorSection'); // Get sponsor section
+
+    const showReservaBtn = document.getElementById('showReservaBtn');
+    const backToMainBtns = document.querySelectorAll('.back-to-main-btn');
+
+    // Modals
+    const sugerenciasModal = document.getElementById('sugerenciasModal');
+    const openSugerenciasModalBtn = document.getElementById('openSugerenciasModalBtn');
+    const closeSugerenciasModalBtn = document.getElementById('closeSugerenciasModalBtn');
+    const employeeModal = document.getElementById('empleadoModal');
+    const openEmpleadoModalBtn = document.getElementById('openEmpleadoModalBtn');
+    const closeEmpleadoModalBtn = document.getElementById('closeEmpleadoModalBtn');
+
+    function showMainPage() {
+      mainTitle.style.display = 'block';
+      mainButtonsDiv.style.display = 'block';
+      sponsorSection.style.display = 'block'; // Show sponsor section
+      reservaFormSection.style.display = 'none';
+      sugerenciasModal.style.display = 'none'; // Ensure modals are hidden
+      employeeModal.style.display = 'none';   // Ensure modals are hidden
+    }
+
+    function hideMainPage() {
+      mainTitle.style.display = 'none';
+      mainButtonsDiv.style.display = 'none';
+      sponsorSection.style.display = 'none'; // Hide sponsor section
+    }
+
+    showReservaBtn.addEventListener('click', () => {
+      hideMainPage();
+      reservaFormSection.style.display = 'block';
+      configurarFechas(); // Ensure date is set when showing form
+      actualizarHorasDisponibles(); // Ensure hours are populated
+      updateRangeValue(); // Update initial range value
+    });
+
+    openSugerenciasModalBtn.addEventListener('click', () => {
+      sugerenciasModal.style.display = 'block';
+    });
+
+    closeSugerenciasModalBtn.addEventListener('click', () => {
+      sugerenciasModal.style.display = 'none';
+    });
+
+    openEmpleadoModalBtn.addEventListener('click', () => {
+      employeeModal.style.display = 'block';
+    });
+
+    closeEmpleadoModalBtn.addEventListener('click', () => {
+      employeeModal.style.display = 'none';
+    });
+
+    // Close modals if clicked outside content
+    window.addEventListener('click', (event) => {
+      if (event.target === sugerenciasModal) {
+        sugerenciasModal.style.display = 'none';
+      }
+      if (event.target === employeeModal) {
+        employeeModal.style.display = 'none';
+      }
+    });
+
+    backToMainBtns.forEach(button => {
+      button.addEventListener('click', showMainPage);
+    });
+
+    // --- Script para la reserva de citas ---
+    const horaSelect = document.getElementById('hora');
+    const fechaInput = document.getElementById('fecha');
+    const rangeInput = document.getElementById('range_input');
+    const rangeValueDisplay = document.getElementById('range_value_display');
+
+    // Función para configurar las fechas mínima y máxima
+    function configurarFechas() {
+      const hoy = new Date();
+      const hoySoloFecha = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+      
+      const mesSiguiente = new Date(hoySoloFecha);
+      mesSiguiente.setMonth(hoySoloFecha.getMonth() + 1);
+
+      fechaInput.min = hoySoloFecha.toISOString().split('T')[0];
+      fechaInput.max = mesSiguiente.toISOString().split('T')[0];
+      
+      if (!fechaInput.value) {
+          fechaInput.value = hoySoloFecha.toISOString().split('T')[0];
+      }
+    }
+
+    // Horarios según el día de la semana (0 = Domingo, 6 = Sábado)
+    const horarios = {
+      '0': [], // Domingo (cerrado)
+      '1': ['09:00', '10:00', '11:00', '12:00', '16:00'], // Lunes
+      '2': ['09:00', '10:00', '11:00', '16:00', '17:00'], // Martes
+      '3': ['10:00', '11:00', '12:00', '18:00'], // Miércoles
+      '4': ['09:30', '10:30', '11:30', '15:30'], // Jueves
+      '5': ['09:00', '11:00', '13:00', '16:00', '17:00'], // Viernes
+      '6': ['10:00', '12:00', '14:00'], // Sábado
+    };
+
+    // Función para actualizar las horas disponibles
+    function actualizarHorasDisponibles() {
+      const fecha = new Date(fechaInput.value);
+      const diaSemana = fecha.getDay().toString(); 
+
+      const horasDisponibles = horarios[diaSemana] || [];
+      horaSelect.innerHTML = ''; 
+
+      if (horasDisponibles.length === 0) {
+        const option = document.createElement('option');
+        option.textContent = 'No hay horarios disponibles este día';
+        option.disabled = true;
+        option.selected = true;
+        horaSelect.appendChild(option);
+      } else {
+        horasDisponibles.forEach(hora => {
+          const option = document.createElement('option');
+          option.value = hora;
+          option.textContent = hora;
+          horaSelect.appendChild(option);
+        });
+      }
+    }
+
+    // Función para actualizar el valor del porcentaje del slider
+    function updateRangeValue() {
+        rangeValueDisplay.textContent = rangeInput.value + '%';
+    }
+
+    fechaInput.addEventListener('change', actualizarHorasDisponibles);
+    rangeInput.addEventListener('input', updateRangeValue);
+
+    document.getElementById('reservaForm').addEventListener('submit', function (e) {
+      e.preventDefault(); 
+      const email = document.getElementById('email').value;
+      const fecha = document.getElementById('fecha').value;
+      const hora = document.getElementById('hora').value;
+      const fullCountryValue = document.getElementById('country').value;
+      const country = fullCountryValue.split(' (')[0]; 
+      const roastIntensity = rangeInput.value; 
+      
+      const selectedRoastPreferences = Array.from(document.querySelectorAll('input[name="roast_preference"]:checked'))
+                                     .map(checkbox => checkbox.labels[0].textContent);
+      const roastPreferenceText = selectedRoastPreferences.length > 0 ? selectedRoastPreferences.join(', ') : 'Ninguna seleccionada';
+
+      const selectedCoffeeTypeRadio = document.querySelector('input[name="coffee_type"]:checked');
+      const selectedCoffeeTypeText = selectedCoffeeTypeRadio ? selectedCoffeeTypeRadio.labels[0].textContent : 'No seleccionado';
+
+      const containerSelect = document.getElementById('dropdown_select').value;
+      const selectedContainerText = document.querySelector(`#dropdown_select option[value="${containerSelect}"]`).textContent;
+
+      const dniFile = document.getElementById('file_upload').files[0];
+      const dniFileName = dniFile ? dniFile.name : 'Ningún archivo subido';
+
+
+      alert(`¡Cita confirmada!\n
+📧 Email: ${email}
+📅 Fecha: ${fecha}
+🕒 Hora: ${hora}
+🌍 País: ${country}
+🌡️ Intensidad del Tueste: ${roastIntensity}%
+☕ Preferencia de Grano: ${roastPreferenceText}
+🥛 Tipo de Café: ${selectedCoffeeTypeText}
+📦 Recipiente: ${selectedContainerText}
+📄 Archivo DNI: ${dniFileName}
+      `);
+      
+      showMainPage(); // Go back to main page after submission
+      this.reset(); // Clear form fields
+    });
+
+    // --- Script para la sección de búsqueda de país (integrado en el mismo form) ---
+    const countryInput = document.getElementById('country');
+    const checkmark = document.getElementById('check');
+    const countryOptions = Array.from(document.getElementById('countries').options).map(opt => opt.value);
+
+    let lastConfirmedValue = '';
+
+    function validateCountryInput() {
+        const currentValue = countryInput.value;
+        if (countryOptions.includes(currentValue)) {
+            lastConfirmedValue = currentValue;
+            checkmark.style.display = 'inline';
+            countryInput.classList.add('valid-country');
+        } else {
+            checkmark.style.display = 'none';
+            countryInput.classList.remove('valid-country');
+        }
+    }
+
+    countryInput.addEventListener('change', validateCountryInput);
+    countryInput.addEventListener('input', () => {
+        if (countryInput.value !== lastConfirmedValue) {
+            checkmark.style.display = 'none';
+            countryInput.classList.remove('valid-country');
+        }
+    });
+    countryInput.addEventListener('blur', validateCountryInput);
+
+    // --- Script para el Buzón de Sugerencias/Quejas ---
+    const suggestionForm = document.getElementById("suggestionForm");
+
+    suggestionForm.addEventListener('submit', function (e) {
+        e.preventDefault(); 
+
+        const userEmail = document.getElementById('modal-email').value;
+        const summary = document.getElementById('summary').value;
+        const type = document.querySelector('input[name="type"]:checked')?.value; 
+        const body = document.getElementById('body').value;
+
+        alert(`Sugerencia/Queja enviada:\n
+Correo: ${userEmail}
+Resumen: ${summary}
+Tipo: ${type || 'No especificado'}
+Cuerpo: ${body}
+        `);
+        
+        sugerenciasModal.style.display = 'none'; // Close modal after submission
+        this.reset(); // Clear form fields
+    });
+
+    // --- Script para el Buzón Soy Empleado ---
+    const employeeForm = document.getElementById("employeeForm");
+
+    employeeForm.addEventListener('submit', function(e) {
+      e.preventDefault(); 
+
+      const mailCorporativo = document.getElementById('employee-mail').value;
+      const dni = employeeForm.querySelector('#dni').value; 
+      const puesto = employeeForm.querySelector('#puesto').value; 
+      const codigoLocal = employeeForm.querySelector('#codigo_local').value; 
+
+      alert(`Datos de Empleado Enviados:\n
+Mail Corporativo: ${mailCorporativo}
+DNI: ${dni}
+Puesto: ${puesto}
+Código Local: ${codigoLocal}
+      `);
+
+      employeeModal.style.display = 'none'; // Close modal after submission
+      this.reset(); // Clear form fields
+    });
+
+    // Initialize to show the main page on load
+    showMainPage();
+  </script>
+
+</body>
+</html>
